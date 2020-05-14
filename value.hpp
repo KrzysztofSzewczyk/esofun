@@ -65,10 +65,10 @@ namespace esofun {
 							int coeff;
 							
 							if(std::get<int32_t>(data) < 0) {
-								coeff = -1;
+								coeff = 1;
 								val = -std::get<int32_t>(data);
 							} else {
-								coeff = 1;
+								coeff = 0;
 								val = std::get<int32_t>(data);
 							}
 							
@@ -91,11 +91,50 @@ namespace esofun {
 							
 							std::reverse(r.begin(), r.end());
 							
+							if(coeff)
+								r = std::string("-") + r;
+							
 							return r;
 						} else {
 							return std::to_string(std::get<int32_t>(data));
 						}
 					}
+					
+					case TYPE_NIL: {
+						return "null";
+					}
+					
+					case TYPE_UINT: {
+						if(esofun::adverbs['b']) {
+							const std::string sheet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+/";
+							std::string r = "";
+							
+							uint32_t val, number, base;
+							val = number = base = std::get<uint32_t>(data);
+							
+							number &= 0x03FFFFFF;
+							base   &= 0xFC000000;
+							base   >>= 26;
+							base   += 1;
+							
+							if(base > 65) {
+								return std::to_string(std::get<uint32_t>(data));
+							}
+							
+							while(number > 0) {
+								r += sheet[number % base];
+								number /= base;
+							}
+							
+							std::reverse(r.begin(), r.end());
+							
+							return r;
+						} else {
+							return std::to_string(std::get<uint32_t>(data));
+						}
+					}
+					
+					
 				}
 			}
 			
